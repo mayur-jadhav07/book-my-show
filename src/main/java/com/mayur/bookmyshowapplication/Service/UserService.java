@@ -1,10 +1,13 @@
 package com.mayur.bookmyshowapplication.Service;
 
 import com.mayur.bookmyshowapplication.DTOs.UserDTO;
+import com.mayur.bookmyshowapplication.Enums.Role;
 import com.mayur.bookmyshowapplication.Exceptions.UserNotFoundException;
 import com.mayur.bookmyshowapplication.Models.User;
 import com.mayur.bookmyshowapplication.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,17 +20,28 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
     public String createUser(UserDTO userDTO) {
-        User user = User.builder()
-                .name(userDTO.getName())
-                .emailId(userDTO.getEmailId())
-                .mobNo(userDTO.getMobileNo())
-                .build();
+        try {
+            User user = User.builder()
+                    .username(userDTO.getUsername())
+                    .password(passwordEncoder.encode(userDTO.getPassword()))
+                    .role(userDTO.getRole().equalsIgnoreCase("ADMIN") ? Role.ADMIN : Role.USER)
+                    .emailId(userDTO.getEmailId())
+                    .mobNo(userDTO.getMobileNo())
+                    .build();
 
-        user = userRepository.save(user);
+            user = userRepository.save(user);
 
-        return "User Created with user id "+ user.getUserId();
+            return "User Created with user id " + user.getUserId();
+        } catch (Exception e) {
+            // Optionally log the exception for debugging
+            System.out.println("Error creating user"+ e);
+            return "Something went wrong";
+        }
     }
+
 
     public List<UserDTO> getAllUsers() {
         List<User> users = userRepository.findAll();
@@ -36,7 +50,8 @@ public class UserService {
 
     private UserDTO mapUserToDTO(User user) {
         UserDTO userDTO = new UserDTO();
-        userDTO.setName(user.getName());
+        userDTO.setUsername(user.getUsername());
+//        userDTO.setPassword(user.getPassword());
         userDTO.setEmailId(user.getEmailId());
         userDTO.setMobileNo(user.getMobNo());
         return userDTO;
@@ -54,7 +69,8 @@ public class UserService {
         Optional<User> optionalUser = userRepository.findById(id);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
-            user.setName(userDTO.getName());
+            user.setUsername(user.getUsername());
+            user.setPassword(user.getPassword());
             user.setEmailId(userDTO.getEmailId());
             user.setMobNo(userDTO.getMobileNo());
             userRepository.save(user);

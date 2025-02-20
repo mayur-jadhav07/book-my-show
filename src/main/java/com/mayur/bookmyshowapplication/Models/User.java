@@ -1,5 +1,6 @@
 package com.mayur.bookmyshowapplication.Models;
 
+import com.mayur.bookmyshowapplication.Enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,7 +18,12 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer userId;
 
-    private String name;
+    private String username;
+
+    private String password;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     @Column(unique = true)
     private String emailId;

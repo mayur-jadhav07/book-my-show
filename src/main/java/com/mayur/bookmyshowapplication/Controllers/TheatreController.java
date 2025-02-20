@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("Theatres")
+@RequestMapping("theatres")
 public class TheatreController {
 
     @Autowired
